@@ -41,22 +41,29 @@ def find_afterparties():
     sort = request.args.get('sort', '')
 
     url = 'https://app.ticketmaster.com/discovery/v2/events'
-    payload = {'apikey': API_KEY}
+    payload = {'apikey': os.environ['TICKETMASTER_KEY'], 'keyword': keyword, 'postalCode':postalcode,
+    'radius': radius, 'unit': unit, 'sort': sort}
 
-    # TODO: Make a request to the Event Search endpoint to search for events
-    #
-    # - Use form data from the user to populate any search parameters
-    #
-    # - Make sure to save the JSON data from the response to the `data`
-    #   variable so that it can display on the page. This is useful for
-    #   debugging purposes!
-    #
-    # - Replace the empty list in `events` with the list of events from your
-    #   search results
+    
+    res = requests.get(url, params=payload)
+    data = res.json()
+  
+    # key = '_embedded'
+    # if key not in data.keys():
+    #     events = []
+    # else: events = data['_embedded']['events']
 
-    data = {'Test': ['This is just some test data'],
-            'page': {'totalElements': 1}}
-    events = []
+    events = data.get('_embedded', {}).get('events', [])
+    
+
+    # if events not in data:
+    #     events = []
+
+
+    # The easiest way to avoid a KeyError here is to check 
+    # if the key '_embedded' is in the data dictionary, 
+    # and set events to be an empty list if it’s not. 
+    # You can also use a try/except block, or chain two get() calls together.
 
     return render_template('search-results.html',
                            pformat=pformat,
